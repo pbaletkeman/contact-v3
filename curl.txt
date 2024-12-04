@@ -1,0 +1,75 @@
+POST: 
+
+curl --location 'http://localhost:4000/contact/v1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+   "firstname":"fname",
+   "lastname":"lname",
+   "middlename":"mname",
+   "birthdate":"2024-11-30",
+   "title":"mr",
+   "addresses":[
+      {
+         "street1":"str1",
+         "street2":"str2",
+         "city":"ncity",
+         "province":"prov",
+         "postalcode":"postal",
+         "country":"cana",
+         "phone":"phone1",
+         "email":"p@ss.com"
+      },
+      {
+         "street1":"str10",
+         "street2":"str20",
+         "city":"ncity0",
+         "province":"pro0",
+         "postalcode":"postal0",
+         "country":"cana0",
+         "phone":"phone10",
+         "email":"p@ss.com0"
+      }
+   ]
+}'
+
+PUT:
+curl --location --request PUT 'http://localhost:4000/contact/v1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+   "contactid":"10",
+   "firstname":"Dfname",
+   "lastname":"Dlname",
+   "middlename":"Dmname",
+   "title":"undefined",
+   "birthdate":"Sat Nov 30 2024 00:00:00 GMT-0500 (Eastern Standard Time)",
+   "addresses":[
+      {
+         "address":{
+            "addressid":"1",
+            "contactid":"10",
+            "street1":"str1A",
+            "street2":"str2A",
+            "city":"ncityA",
+            "province":"provD",
+            "postalcode":"postaA",
+            "country":"canD  ",
+            "phone":"phoneA    ",
+            "email":"pA@ss.com"
+         }
+      },
+      {
+         "address":{
+            "addressid":"2",
+            "contactid":"10",
+            "street1":"Bstr10",
+            "street2":"Bstr20",
+            "city":"Bncity0",
+            "province":"BproA ",
+            "postalcode":"Bposta",
+            "country":"Bcana0 ",
+            "phone":"Bphone10   ",
+            "email":"b@ss.com0"
+         }
+      }
+   ]
+}'
