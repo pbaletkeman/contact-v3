@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 // import * as db from "../db/index.js";
 import Address from "../models/address.js";
 import Contact from "../models/contact.js";
-import JSONTools from "../models/jsonTools.js";
+import { JSONToContact, ParseAddresses } from "../models/jsonTools.js";
 
 const router = new Router();
 
@@ -45,14 +45,18 @@ router.get("/:id", async function (req, res) {
 
 router.post("/", jsonParser, async function (req, res) {
   console.log("POST request received");
-  // console.log("Req");
-  // console.log(req.body);
-  const contact = JSONTools().JSONToModel(req.body);
-  console.log("contact");
-  console.log(contact.toJSON());
-  // const inserted = await insertRecord(contact);
+  const contact = JSONToContact(req.body);
+  const addresses =
+    req.body && req.body.addresses ? ParseAddresses(req.body.addresses) : [];
+  await contact.save();
+  for (let i = 0; i < addresses.length; i++) {
+    addresses[i].contactId = contact.contactId;
+    await addresses[i].save();
+  }
+  const returnedContact = await Contact.findAll({ include: Address });
+
   res.writeHead(200, { "Content-Type": "application/json" });
-  // res.end(JSON.stringify(inserted));
+  res.end(JSON.stringify(returnedContact));
   res.end();
 });
 
@@ -205,65 +209,4 @@ async function updateRecord(contact) {
   }
   res.rows[0].addresses = updateAdds;
   return res.rows;
-}
-
-async function insertRecord(contact) {
-  let sqlString = [];
-  let sqlValues = [];
-  if (contact.contactId) {
-    sqlString.push("contactId");
-    sqlValues.push(contact.contactId);
-  }
-  if (contact.firstName) {
-    sqlString.push("firstname");
-    sqlValues.push(contact.firstName.trim());
-  }
-  if (contact.lastName) {
-    sqlString.push("lastname");
-    sqlValues.push(contact.lastName.trim());
-  }
-  if (contact.middleName) {
-    sqlString.push("middlename");
-    sqlValues.push(contact.middleName.trim());
-  }
-  if (contact.title) {
-    sqlString.push("title");
-    sqlValues.push(contact.title.trim());
-  }
-  if (contact.birthDate) {
-    sqlString.push("birthdate");
-    sqlValues.push(contact.birthDate.trim());
-  }
-  let values = "";
-  for (let i = 1; i <= sqlValues.length; i++) {
-    values += "$" + i + ", ";
-  }
-  values = values.substring(0, values.length - 2);
-  const sqlFields =
-    `INSERT INTO ${TABLE_NAME} (` +
-    `"` +
-    sqlString.join('","') +
-    `") VALUES (` +
-    values +
-    `) RETURNING * `;
-  const res = await db.query(sqlFields, sqlValues);
-  let insertedAdds = [];
-  const newContactId = res.rows[0].contactid;
-  for (let i = 0; i < contact.addresses.length; i++) {
-    contact.addresses[i].contactId = newContactId;
-    insertedAdds.push(await addressInsert(contact.addresses[i]));
-  }
-  res.rows[0].addresses = insertedAdds;
-  return res.rows[0];
-}
-
-function parseAddressJSON(addresses) {
-  let adds = [];
-  if (addresses && Array.isArray(addresses) && addresses.length > 0) {
-    addresses.forEach((a) => {
-      const address = JSONToAddress(a);
-      adds.push(address);
-    });
-  }
-  return adds;
 }

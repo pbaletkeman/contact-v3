@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db/db.js";
+import sequelize from "../db/sequelize.js";
 import Address from "./address.js";
 
 const Contact = sequelize.define(
@@ -22,8 +22,11 @@ const Contact = sequelize.define(
   }
 );
 
-Contact.hasMany(Address);
-Address.belongsTo(Contact);
+Contact.hasMany(Address, {
+  foreignKey: {
+    name: "contactId",
+  },
+});
 
 await sequelize.sync({ force: true });
 
