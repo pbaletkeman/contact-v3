@@ -9,12 +9,12 @@ function JSONToContact(body) {
   let contact = new Contact();
   // console.log("body");
   // console.log(body.addresses);
-  contact.contactId = body.contactid ? body.contactid : null;
+  // contact.contactId = body.contactid ? body.contactid : null;
   contact.firstName = body.firstname ? body.firstname : null;
   contact.lastName = body.lastname ? body.lastname : null;
   contact.middleName = body.middlename ? body.middlename : null;
   contact.birthDate = body.birthdate ? body.birthdate : null;
-  return contact;
+  return [contact, body.contactid ? body.contactid : null];
 }
 
 function ParseAddresses(addresses) {

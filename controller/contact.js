@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import Address from "../models/address.js";
 import Contact from "../models/contact.js";
 import { JSONToContact, ParseAddresses } from "../models/jsonTools.js";
+import { NUMBER } from "sequelize";
 
 const router = new Router();
 
@@ -45,7 +46,7 @@ router.get("/:id", async function (req, res) {
 
 router.post("/", jsonParser, async function (req, res) {
   console.log("POST request received");
-  const contact = JSONToContact(req.body);
+  const [contact, contactId] = JSONToContact(req.body);
   const addresses =
     req.body && req.body.addresses ? ParseAddresses(req.body.addresses) : [];
   await contact.save();
@@ -57,15 +58,31 @@ router.post("/", jsonParser, async function (req, res) {
 
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify(returnedContact));
-  res.end();
 });
 
 router.put("/", jsonParser, async function (req, res) {
   console.log("PUT request received");
-  const contact = new Contact().createFromJSON(req.body);
-  const updated = await updateRecord(contact);
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify(updated));
+  const [contact, contactId] = JSONToContact(req.body);
+
+  // const addresses =
+  // req.body && req.body.addresses ? ParseAddresses(req.body.addresses) : [];
+
+  // await contact.save();
+  // for (let i = 0; i < addresses.length; i++) {
+  //   addresses[i].contactId = contact.contactId;
+  //   await addresses[i].save();
+  // }
+  // const returnedContact = await Contact.findAll({ include: Address });
+
+  contact.contactId = contactId;
+  await contact.update();
+  console.log("contact");
+  console.log(contact.toJSON());
+
+  res.end();
+
+  // res.writeHead(200, { "Content-Type": "application/json" });
+  // res.end(JSON.stringify(returnedContact));
 });
 
 router.delete("/:ids", async function (req, res) {

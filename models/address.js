@@ -19,6 +19,7 @@ const Address = sequelize.define(
     email: { type: DataTypes.STRING(250) },
   },
   {
+    timestamps: false,
     freezeTableName: true,
     sequelize,
   }
